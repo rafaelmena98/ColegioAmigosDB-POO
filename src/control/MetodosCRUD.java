@@ -1,41 +1,41 @@
 package control;
 
 import modelo.Libro;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.SQLException;
 
 public class MetodosCRUD {
 
-
-    private List<Libro> baseDeDatosSimulada;
+    private Conexion conexionBD;
 
     public MetodosCRUD() {
-        this.baseDeDatosSimulada = new ArrayList<>();
+        this.conexionBD = new Conexion();
     }
-
 
     public void registrarLibro(Libro nuevoLibro) {
-        baseDeDatosSimulada.add(nuevoLibro);
-        System.out.println(">>> ÉXITO: Simulando guardado en la Base de Datos...");
-        System.out.println(">>> Se ha registrado el libro: " + nuevoLibro.getTitulo() + " del autor " + nuevoLibro.getAutor());
-    }
+        String sql = "INSERT INTO ejemplares (titulo, autor, anio_publicacion) VALUES (?, ?, ?)";
 
-    public List<Libro> obtenerTodosLosLibros() {
+        // Abrimos la conexión
+        Connection conn = conexionBD.conectar();
 
-        System.out.println(">>> LECTURA: Extrayendo registros para mostrar en la tabla...");
-        return baseDeDatosSimulada;
-    }
+        if (conn != null) {
+            try {
 
+                PreparedStatement pstmt = conn.prepareStatement(sql);
 
-    public void actualizarLibro(Libro libroModificado) {
+                pstmt.setString(1, nuevoLibro.getTitulo());
+                pstmt.setString(2, nuevoLibro.getAutor());
+                pstmt.setInt(3, nuevoLibro.getAnioPublicacion());
 
-        System.out.println(">>> ACTUALIZACIÓN: Simulando actualización en BD...");
-        System.out.println(">>> Se actualizaron los datos del documento con ID: " + libroModificado.getId());
-    }
+                pstmt.executeUpdate();
+                System.out.println(">>> ÉXITO: Libro guardado permanentemente en XAMPP.");
 
-
-    public void eliminarLibro(int idLibro) {
-
-        System.out.println(">>> ELIMINACIÓN: Simulando borrado en BD del registro con ID: " + idLibro);
+            } catch (SQLException e) {
+                System.err.println("ERROR AL GUARDAR: " + e.getMessage());
+            } finally {
+                conexionBD.desconectar(conn);
+            }
+        }
     }
 }
