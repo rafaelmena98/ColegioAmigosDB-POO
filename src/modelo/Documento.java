@@ -6,6 +6,7 @@ public abstract class Documento {
     private String titulo;
     private String autor;
     private int anioPublicacion;
+    private String codigo;
 
 
     public Documento() {
@@ -51,5 +52,13 @@ public abstract class Documento {
 
     public void setAnioPublicacion(int anioPublicacion) {
         this.anioPublicacion = anioPublicacion;
+    }
+
+    public String getCodigo() {
+        return codigo;
+    }
+
+    public void setCodigo(String codigo) {
+        this.codigo = codigo;
     }
 }

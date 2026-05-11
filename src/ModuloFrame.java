@@ -1,9 +1,11 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import java.util.ArrayList;
 import control.MetodosCRUD;
 import utilidades.Validaciones;
 import control.Conexion;
+import modelo.Libro;
 
 public class ModuloFrame extends JFrame {
 
@@ -19,10 +21,6 @@ public class ModuloFrame extends JFrame {
     private DefaultTableModel modelo;
 
     private MetodosCRUD crud = new MetodosCRUD();
-    private Validaciones validador = new Validaciones();
-    private Conexion con = new Conexion();
-
-
 
     public ModuloFrame(String nombreModulo) {
 
@@ -39,15 +37,15 @@ public class ModuloFrame extends JFrame {
         String campo1 = "Código:";
         String campo2 = "Nombre/Título:";
         String campo3 = "Descripción:";
-        String campo4 = "Anio";
-        String[] columnas = {"Código", "Nombre/Título", "Descripción", "Estado", "Anio"};
+        String campo4 = "Año:";
+        String[] columnas = {"Código", "Nombre/Título", "Descripción", "Estado", "Año"};
 
         if (nombreModulo.equals("Registrar ejemplares")) {
             campo1 = "Código:";
             campo2 = "Título:";
             campo3 = "Autor:";
-            campo4 = "Anio";
-            columnas = new String[]{"Código", "Título", "Autor", "Disponible", "Anio"};
+            campo4 = "Año:";
+            columnas = new String[]{"Código", "Título", "Autor", "Disponible", "Año"};
         }
 
         JLabel lblCampo1 = new JLabel(campo1);
@@ -82,8 +80,6 @@ public class ModuloFrame extends JFrame {
         txtCampo4.setBounds(180, 200, 220, 25);
         add(txtCampo4);
 
-
-
         btnAgregar = new JButton("Agregar");
         btnAgregar.setBounds(460, 80, 120, 30);
         add(btnAgregar);
@@ -100,7 +96,6 @@ public class ModuloFrame extends JFrame {
         btnBuscar.setBounds(610, 130, 120, 30);
         add(btnBuscar);
 
-        // Inicializamos el modelo de la tabla VACÍO
         modelo = new DefaultTableModel(columnas, 0);
         tabla = new JTable(modelo);
 
@@ -114,72 +109,69 @@ public class ModuloFrame extends JFrame {
 
         btnCerrar.addActionListener(e -> dispose());
 
-        // --- INICIO DE LA INTEGRACIÓN CON BASE DE DATOS ---
-
-        // 1. Cargar los datos al abrir la ventana
         cargarDatosTabla();
 
-        // 2. Acción del botón Agregar (Aquí entra el trabajo de Alcyr con validaciones)
         btnAgregar.addActionListener(e -> {
-            String valor1 = txtCampo1.getText();
-            String valor2 = txtCampo2.getText();
-            String valor3 = txtCampo3.getText();
+            String codigo = txtCampo1.getText();
+            String tituloLibro = txtCampo2.getText();
+            String autor = txtCampo3.getText();
+            String anioStr = txtCampo4.getText();
 
-            // Ejemplo de uso de la clase validaciones:
-            // if(!Validaciones.camposLlenos(valor1, valor2, valor3)) {
-            //     JOptionPane.showMessageDialog(this, "Por favor llena todos los campos.");
-            //     return;
-            // }
+            if (!Validaciones.camposEstanLlenos(tituloLibro, autor, anioStr)) {
+                JOptionPane.showMessageDialog(this, "Por favor llena todos los campos obligatorios.");
+                return;
+            }
 
-            // Lógica para enviar a metodoscrud:
-            // boolean exito = crud.insertarDocumento(valor1, valor2, valor3);
-            // if(exito) {
-            //     JOptionPane.showMessageDialog(this, "Registro guardado correctamente.");
-            //     limpiarCampos();
-            //     cargarDatosTabla(); // Refresca la tabla para ver el nuevo registro
-            // } else {
-            //     JOptionPane.showMessageDialog(this, "Error al guardar en la base de datos.");
-            // }
+            int anioValidado = Validaciones.validarAnioPublicacion(anioStr);
+            if (anioValidado == -1) {
+                JOptionPane.showMessageDialog(this, "Año inválido. Debe ser un número mayor a cero.");
+                return;
+            }
+
+            Libro nuevoLibro = new Libro();
+            nuevoLibro.setCodigo(codigo);
+            nuevoLibro.setTitulo(tituloLibro);
+            nuevoLibro.setAutor(autor);
+            nuevoLibro.setAnioPublicacion(anioValidado);
+
+            crud.registrarLibro(nuevoLibro);
+
+            JOptionPane.showMessageDialog(this, "Registro guardado correctamente.");
+            limpiarCampos();
+            cargarDatosTabla();
         });
 
-        // 3. Acción del botón Eliminar
         btnEliminar.addActionListener(e -> {
             int filaSeleccionada = tabla.getSelectedRow();
             if (filaSeleccionada >= 0) {
                 String codigoAEliminar = tabla.getValueAt(filaSeleccionada, 0).toString();
-
-                // Lógica para metodoscrud:
-                // crud.eliminarDocumento(codigoAEliminar);
-                // cargarDatosTabla(); // Refresca la tabla
+                JOptionPane.showMessageDialog(this, "Funcionalidad de eliminación pendiente de implementación en CRUD.");
+                cargarDatosTabla();
             } else {
                 JOptionPane.showMessageDialog(this, "Selecciona una fila para eliminar.");
             }
         });
-
-        // --- FIN DE LA INTEGRACIÓN ---
     }
 
-    // Método principal para traer la base de datos a la interfaz
     private void cargarDatosTabla() {
-        modelo.setRowCount(0); // Limpia la tabla antes de cargar datos nuevos
-
-        // Aquí Samuel y tú deben conectar el ResultSet o ArrayList que venga del CRUD
-        // Ejemplo asumiendo que metodoscrud devuelve un ArrayList de arreglos de String:
-        // ArrayList<String[]> listaDatos = crud.obtenerTodos();
-        // for (String[] fila : listaDatos) {
-        //     modelo.addRow(fila);
-        // }
+        modelo.setRowCount(0);
+        ArrayList<Object[]> listaDatos = crud.obtenerEjemplares();
+        for (Object[] fila : listaDatos) {
+            modelo.addRow(fila);
+        }
     }
 
     private void limpiarCampos() {
         txtCampo1.setText("");
         txtCampo2.setText("");
         txtCampo3.setText("");
+        txtCampo4.setText("");
     }
 
     public JTextField getTxtCampo1() { return txtCampo1; }
     public JTextField getTxtCampo2() { return txtCampo2; }
     public JTextField getTxtCampo3() { return txtCampo3; }
+    public JTextField getTxtCampo4() { return txtCampo4; }
     public JButton getBtnAgregar() { return btnAgregar; }
     public JButton getBtnEditar() { return btnEditar; }
     public JButton getBtnEliminar() { return btnEliminar; }

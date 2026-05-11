@@ -1,5 +1,6 @@
 import javax.swing.*;
 import java.awt.*;
+import control.MetodosCRUD;
 
 public class LoginFrame extends JFrame {
 
@@ -16,8 +17,8 @@ public class LoginFrame extends JFrame {
         titulo.setBounds(80, 30, 250, 30);
         add(titulo);
 
-        JLabel usuario = new JLabel("Usuario:");
-        usuario.setBounds(50, 90, 100, 25);
+        JLabel usuario = new JLabel("Usuario (Correo):");
+        usuario.setBounds(50, 90, 120, 25);
         add(usuario);
 
         JTextField txtUsuario = new JTextField();
@@ -35,9 +36,29 @@ public class LoginFrame extends JFrame {
         JButton ingresar = new JButton("Iniciar sesión");
         ingresar.setBounds(120, 190, 150, 35);
         add(ingresar);
+
+
         ingresar.addActionListener(e -> {
-            new MenuFrame().setVisible(true);
-            dispose();
+
+            String correo = txtUsuario.getText();
+            String contrasena = new String(txtPassword.getPassword());
+
+            if (correo.trim().isEmpty() || contrasena.trim().isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Por favor, ingresa tu usuario y contraseña.");
+                return;
+            }
+
+            MetodosCRUD crud = new MetodosCRUD();
+            boolean esValido = crud.validarLogin(correo, contrasena);
+
+            if (esValido) {
+                JOptionPane.showMessageDialog(this, "¡Bienvenido al sistema!");
+                new MenuFrame().setVisible(true); // Abre tu menú principal
+                dispose();
+            } else {
+                JOptionPane.showMessageDialog(this, "Credenciales incorrectas o usuario inactivo.", "Error de Acceso", JOptionPane.ERROR_MESSAGE);
+            }
         });
+
     }
 }
