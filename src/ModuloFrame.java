@@ -1,19 +1,28 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import control.MetodosCRUD;
+import utilidades.Validaciones;
+import control.Conexion;
 
 public class ModuloFrame extends JFrame {
-
 
     private JTextField txtCampo1;
     private JTextField txtCampo2;
     private JTextField txtCampo3;
+    private JTextField txtCampo4;
     private JButton btnAgregar;
     private JButton btnEditar;
     private JButton btnEliminar;
     private JButton btnBuscar;
     private JTable tabla;
     private DefaultTableModel modelo;
+
+    private MetodosCRUD crud = new MetodosCRUD();
+    private Validaciones validador = new Validaciones();
+    private Conexion con = new Conexion();
+
+
 
     public ModuloFrame(String nombreModulo) {
 
@@ -27,19 +36,19 @@ public class ModuloFrame extends JFrame {
         titulo.setBounds(300, 20, 400, 35);
         add(titulo);
 
-
         String campo1 = "Código:";
         String campo2 = "Nombre/Título:";
         String campo3 = "Descripción:";
-        String[] columnas = {"Código", "Nombre/Título", "Descripción", "Estado"};
+        String campo4 = "Anio";
+        String[] columnas = {"Código", "Nombre/Título", "Descripción", "Estado", "Anio"};
 
         if (nombreModulo.equals("Registrar ejemplares")) {
             campo1 = "Código:";
             campo2 = "Título:";
             campo3 = "Autor:";
-            columnas = new String[]{"Código", "Título", "Autor", "Disponible"};
+            campo4 = "Anio";
+            columnas = new String[]{"Código", "Título", "Autor", "Disponible", "Anio"};
         }
-
 
         JLabel lblCampo1 = new JLabel(campo1);
         lblCampo1.setBounds(40, 80, 140, 25);
@@ -65,6 +74,16 @@ public class ModuloFrame extends JFrame {
         txtCampo3.setBounds(180, 160, 220, 25);
         add(txtCampo3);
 
+        JLabel lblCampo4 = new JLabel(campo4);
+        lblCampo4.setBounds(40, 200, 140, 25);
+        add(lblCampo4);
+
+        txtCampo4 = new JTextField();
+        txtCampo4.setBounds(180, 200, 220, 25);
+        add(txtCampo4);
+
+
+
         btnAgregar = new JButton("Agregar");
         btnAgregar.setBounds(460, 80, 120, 30);
         add(btnAgregar);
@@ -81,9 +100,8 @@ public class ModuloFrame extends JFrame {
         btnBuscar.setBounds(610, 130, 120, 30);
         add(btnBuscar);
 
+        // Inicializamos el modelo de la tabla VACÍO
         modelo = new DefaultTableModel(columnas, 0);
-        modelo.addRow(new Object[]{"001", "Dato de ejemplo", "Información de prueba", "Activo"});
-
         tabla = new JTable(modelo);
 
         JScrollPane scroll = new JScrollPane(tabla);
@@ -95,6 +113,68 @@ public class ModuloFrame extends JFrame {
         add(btnCerrar);
 
         btnCerrar.addActionListener(e -> dispose());
+
+        // --- INICIO DE LA INTEGRACIÓN CON BASE DE DATOS ---
+
+        // 1. Cargar los datos al abrir la ventana
+        cargarDatosTabla();
+
+        // 2. Acción del botón Agregar (Aquí entra el trabajo de Alcyr con validaciones)
+        btnAgregar.addActionListener(e -> {
+            String valor1 = txtCampo1.getText();
+            String valor2 = txtCampo2.getText();
+            String valor3 = txtCampo3.getText();
+
+            // Ejemplo de uso de la clase validaciones:
+            // if(!Validaciones.camposLlenos(valor1, valor2, valor3)) {
+            //     JOptionPane.showMessageDialog(this, "Por favor llena todos los campos.");
+            //     return;
+            // }
+
+            // Lógica para enviar a metodoscrud:
+            // boolean exito = crud.insertarDocumento(valor1, valor2, valor3);
+            // if(exito) {
+            //     JOptionPane.showMessageDialog(this, "Registro guardado correctamente.");
+            //     limpiarCampos();
+            //     cargarDatosTabla(); // Refresca la tabla para ver el nuevo registro
+            // } else {
+            //     JOptionPane.showMessageDialog(this, "Error al guardar en la base de datos.");
+            // }
+        });
+
+        // 3. Acción del botón Eliminar
+        btnEliminar.addActionListener(e -> {
+            int filaSeleccionada = tabla.getSelectedRow();
+            if (filaSeleccionada >= 0) {
+                String codigoAEliminar = tabla.getValueAt(filaSeleccionada, 0).toString();
+
+                // Lógica para metodoscrud:
+                // crud.eliminarDocumento(codigoAEliminar);
+                // cargarDatosTabla(); // Refresca la tabla
+            } else {
+                JOptionPane.showMessageDialog(this, "Selecciona una fila para eliminar.");
+            }
+        });
+
+        // --- FIN DE LA INTEGRACIÓN ---
+    }
+
+    // Método principal para traer la base de datos a la interfaz
+    private void cargarDatosTabla() {
+        modelo.setRowCount(0); // Limpia la tabla antes de cargar datos nuevos
+
+        // Aquí Samuel y tú deben conectar el ResultSet o ArrayList que venga del CRUD
+        // Ejemplo asumiendo que metodoscrud devuelve un ArrayList de arreglos de String:
+        // ArrayList<String[]> listaDatos = crud.obtenerTodos();
+        // for (String[] fila : listaDatos) {
+        //     modelo.addRow(fila);
+        // }
+    }
+
+    private void limpiarCampos() {
+        txtCampo1.setText("");
+        txtCampo2.setText("");
+        txtCampo3.setText("");
     }
 
     public JTextField getTxtCampo1() { return txtCampo1; }
