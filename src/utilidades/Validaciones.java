@@ -31,4 +31,8 @@ public class Validaciones {
             return -1;
         }
     }
+
+    public static int validarNumeroEntero(String anioStr) {
+        return 0;
+    }
 }

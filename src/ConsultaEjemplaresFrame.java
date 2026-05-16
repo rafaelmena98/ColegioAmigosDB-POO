@@ -1,8 +1,13 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import control.MetodosCRUD;
+import java.util.ArrayList;
 
 public class ConsultaEjemplaresFrame extends JFrame {
+
+    private DefaultTableModel modelo;
+    private JTable tabla;
 
     public ConsultaEjemplaresFrame() {
 
@@ -57,8 +62,8 @@ public class ConsultaEjemplaresFrame extends JFrame {
         add(btnBuscar);
 
         String[] columnas = {"Código", "Título", "Autor", "Estado"};
-        DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
-        JTable tabla = new JTable(modelo);
+        modelo = new DefaultTableModel(columnas, 0);
+        tabla = new JTable(modelo);
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(40, 230, 760, 180);
@@ -69,5 +74,16 @@ public class ConsultaEjemplaresFrame extends JFrame {
         add(btnCerrar);
 
         btnCerrar.addActionListener(e -> dispose());
+
+        cargarDatosTabla();
+    }
+
+    private void cargarDatosTabla() {
+        modelo.setRowCount(0);
+        MetodosCRUD crud = new MetodosCRUD();
+        ArrayList<Object[]> listaDatos = crud.obtenerEjemplares();
+        for (Object[] fila : listaDatos) {
+            modelo.addRow(fila);
+        }
     }
 }

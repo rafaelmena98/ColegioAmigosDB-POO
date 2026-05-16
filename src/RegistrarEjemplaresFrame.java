@@ -1,8 +1,14 @@
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 import java.awt.*;
+import control.MetodosCRUD;
+import modelo.Libro;
+import java.util.ArrayList;
 
 public class RegistrarEjemplaresFrame extends JFrame {
+
+    private DefaultTableModel modelo;
+    private JTable tabla;
 
     public RegistrarEjemplaresFrame() {
 
@@ -65,13 +71,8 @@ public class RegistrarEjemplaresFrame extends JFrame {
         add(btnBuscar);
 
         String[] columnas = {"Código", "Título", "Autor", "Disponible", "Año"};
-        DefaultTableModel modelo = new DefaultTableModel(columnas, 0);
-
-        modelo.addRow(new Object[]{"LIB-001", "Java Programming", "Herbert Schildt", "Disponible", "2012"});
-        modelo.addRow(new Object[]{"LIB-002", "Harry Potter", "J.K Rowling", "Disponible", "1999"});
-        modelo.addRow(new Object[]{"TES-001", "Sistema Automatizado de Bi...", "Ingeniería en Computación", "Disponible", "2026"});
-
-        JTable tabla = new JTable(modelo);
+        modelo = new DefaultTableModel(columnas, 0);
+        tabla = new JTable(modelo);
 
         JScrollPane scroll = new JScrollPane(tabla);
         scroll.setBounds(40, 250, 760, 160);
@@ -82,5 +83,50 @@ public class RegistrarEjemplaresFrame extends JFrame {
         add(btnCerrar);
 
         btnCerrar.addActionListener(e -> dispose());
+
+        btnAgregar.addActionListener(e -> {
+            String codigo = txtCampo1.getText();
+            String tituloLibro = txtCampo2.getText();
+            String autor = txtCampo3.getText();
+            String anioStr = txtCampo4.getText();
+
+            // CORRECCIÓN: Se envían 3 parámetros al método y el cuarto se evalúa de manera independiente
+            if (utilidades.Validaciones.camposEstanLlenos(codigo, tituloLibro, autor) && !anioStr.trim().isEmpty()) {
+                int anioValidado = utilidades.Validaciones.validarNumeroEntero(anioStr);
+                if (anioValidado != -1) {
+                    Libro nuevoLibro = new Libro();
+                    nuevoLibro.setCodigo(codigo);
+                    nuevoLibro.setTitulo(tituloLibro);
+                    nuevoLibro.setAutor(autor);
+                    nuevoLibro.setAnioPublicacion(anioValidado);
+
+                    MetodosCRUD crud = new MetodosCRUD();
+                    crud.registrarLibro(nuevoLibro);
+
+                    JOptionPane.showMessageDialog(this, "Registro guardado correctamente.", "Éxito", JOptionPane.INFORMATION_MESSAGE);
+                    cargarDatosTabla();
+
+                    txtCampo1.setText("");
+                    txtCampo2.setText("");
+                    txtCampo3.setText("");
+                    txtCampo4.setText("");
+                } else {
+                    JOptionPane.showMessageDialog(this, "Año inválido. Debe ser un número mayor a cero.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+                }
+            } else {
+                JOptionPane.showMessageDialog(this, "Por favor, llena todos los campos obligatorios.", "Advertencia", JOptionPane.WARNING_MESSAGE);
+            }
+        });
+
+        cargarDatosTabla();
+    }
+
+    private void cargarDatosTabla() {
+        modelo.setRowCount(0);
+        MetodosCRUD crud = new MetodosCRUD();
+        ArrayList<Object[]> listaDatos = crud.obtenerEjemplares();
+        for (Object[] fila : listaDatos) {
+            modelo.addRow(fila);
+        }
     }
 }
