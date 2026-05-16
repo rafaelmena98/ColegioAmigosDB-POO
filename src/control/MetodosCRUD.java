@@ -60,10 +60,10 @@ public class MetodosCRUD {
                 while (rs.next()) {
                     Object[] fila = new Object[5];
 
-                    fila[0] = rs.getString("codigo"); // Ahora es un String/VARCHAR
+                    fila[0] = rs.getString("codigo");
                     fila[1] = rs.getString("titulo");
                     fila[2] = rs.getString("autor");
-                    fila[3] = rs.getString("estado"); // Traemos el estado real ('Disponible', etc.)
+                    fila[3] = rs.getString("estado");
                     fila[4] = rs.getInt("anio_publicacion");
 
                     listaEjemplares.add(fila);

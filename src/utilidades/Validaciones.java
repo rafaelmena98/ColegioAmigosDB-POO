@@ -15,7 +15,7 @@ public class Validaciones {
 
     public static int validarAnioPublicacion(String anioStr) {
         try {
-            // Intenta transformar el String a int
+
             int anio = Integer.parseInt(anioStr.trim());
 
 
@@ -28,7 +28,7 @@ public class Validaciones {
         } catch (NumberFormatException e) {
 
             System.out.println("Error de validación: Ingresaste letras en un campo numérico. Detalles: " + e.getMessage());
-            return -1; // Retornamos -1 para indicarle a la UI que hubo un error
+            return -1;
         }
     }
 }
